@@ -52,7 +52,14 @@ def test_make_spec_adds_intro_sermon_and_passage():
     ops = [i["op"] for i in spec["items"]]
     assert ops == ["clone_range", "hymn", "sermon", "scripture"], ops
     assert spec["items"][2]["reference"] == "Salmos 1:1-3"
-    assert any("RV1960" in w for w in F.warnings(spec))
+    assert spec["items"][3]["chunks"][0][:2] == ["1", "Bienaventurado el varón que no anduvo en consejo de malos,"]
+    assert not any("pegar texto" in w for w in F.warnings(spec))
+
+
+def test_a_passage_rvr1960_lacks_is_left_to_fill_in():
+    spec = F.make_spec("", "X.pptx", "Tema", passage="Salmos 151:1")
+    assert spec["items"][-1]["chunks"] == [[F.SCRIPTURE_TODO]]
+    assert any("pegar texto" in w for w in F.warnings(spec))
 
 
 TSV = "\n".join([

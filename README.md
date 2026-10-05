@@ -35,7 +35,7 @@ Sin `-o`, la deck se llama como el domingo siguiente (`OCTUBRE 11.pptx`).
 | `Himno 64`, `H. 64`, `#64` | himno 64 del himnario |
 | `Al estar ante Ti` | canción de `reference/song-library/` (match difuso, sin acentos) |
 | `Jehová es mi pastor` (sin número) | himno por título |
-| `Salmos 42:1-2 & 63:1-3` | slides de pasaje (el texto RV1960 se pega a mano) |
+| `Salmos 42:1-2 & 63:1-3` | slides de pasaje con el texto RVR1960 de `data/rvr1960.json` |
 | cualquier otra cosa | `_pendientes` en el spec y aviso en stderr |
 
 ### Cuando el OCR no entiende
@@ -56,7 +56,8 @@ Con `--no-ask`, o si la entrada no es una terminal, no pregunta: las líneas que
 `_pendientes` del spec con su `conf`, su `box` y la ruta del recorte (`--crops` cambia la carpeta).
 
 El flyer casi nunca trae la prédica: pásala con `--sermon-title` / `--passage`.
-Una canción que cae en `_pendientes` falta en la biblioteca; agrégala con `worshipdeck song add`
+Un pasaje entra en grupos de hasta 6 líneas por slide; si el `scripture` del spec no trae
+`chunks`, `build` los saca de la Biblia. Una canción que cae en `_pendientes` falta en la biblioteca; agrégala con `worshipdeck song add`
 o mina una deck vieja con `worshipdeck song import-deck --deck VIEJA.pptx`.
 
 ### Otros comandos (los mismos de la skill)
@@ -79,13 +80,14 @@ El formato del spec, las reglas de chunking y las convenciones del operador est�
 | `reference/decks/` | decks reales de referencia (AGOSTO 30, SEPTIEMBRE 6); se suman las nuevas |
 | `reference/hymnal.pdf` | Himnario Corazón y Vida (la página N es el himno N) |
 | `data/hymnal.json` | el himnario parseado; se regenera con `tools/extract_hymnal.py` |
+| `data/rvr1960.json` | Reina-Valera 1960 (31 104 versículos, de [mrk214/bible-data-es-spa](https://github.com/mrk214/bible-data-es-spa)); se regenera con `tools/extract_bible.py` |
 | `reference/song-library/` | una canción contemporánea por JSON, minadas de las decks |
 
 ## Tests
 
 ```bash
 uv run ruff check .   # estático
-uv run pytest         # 116 tests en ~5 s: unit, integración y e2e (sin el render de LibreOffice)
+uv run pytest         # 144 tests en ~5 s: unit, integración y e2e (sin el render de LibreOffice)
 ```
 
 La estrategia (Testing Trophy), la técnica de diseño detrás de cada prueba y los mutantes que la

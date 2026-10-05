@@ -670,6 +670,17 @@ def detect_scripture_slides(prs, ref_index=None, text_index=None):
 # Build driver
 # --------------------------------------------------------------------------
 
+def scripture_chunks(item):
+    """The op's own `chunks`, or the RVR1960 text when the spec leaves them out."""
+    if item.get("chunks"):
+        return item["chunks"]
+    from worshipdeck import bible
+    try:
+        return bible.passage_chunks(item["book"], item["range"])
+    except KeyError as e:
+        raise SystemExit(f"scripture {item['book']} {item['range']}: {e.args[0]}") from None
+
+
 def resolve_default(spec_value, default_path, label):
     if spec_value:
         return spec_value
@@ -777,7 +788,7 @@ def build(spec_path):
                     "scripture_ref_slide_index / scripture_text_slide_index in the spec."
                 )
             build_scripture(target, scr_ref_slide, scr_text_slide,
-                            item["book"], item["range"], item["chunks"])
+                            item["book"], item["range"], scripture_chunks(item))
 
         else:
             raise SystemExit(f"Unknown item op: {op!r}")
@@ -811,7 +822,7 @@ def insert_into_deck(spec_path):
         if item.get("op", "scripture") != "scripture":
             raise SystemExit(f"insert only supports scripture items, got {item.get('op')!r}")
         n_before = len(id_list)
-        build_scripture(prs, ref_t, text_t, item["book"], item["range"], item["chunks"])
+        build_scripture(prs, ref_t, text_t, item["book"], item["range"], scripture_chunks(item))
         if item.get("before"):
             anchor_id = original[item["before"] - 1].slide_id
             anchor = next(e for e in id_list if int(e.get("id")) == anchor_id)

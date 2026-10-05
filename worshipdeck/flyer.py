@@ -5,7 +5,7 @@ the prédica. OCR gives raw text; parse_flyer_text() turns each line into a
 build-spec item:
 
   "Himno 64", "H. 64", "#64"       -> hymn op (number looked up in the hymnal)
-  "Salmos 42:1-2"                  -> scripture op (RV1960 text left to fill in)
+  "Salmos 42:1-2"                  -> scripture op (RVR1960 text from data/rvr1960.json)
   a title in the song library      -> song op by key
   a hymn title without its number  -> hymn op
   anything else                    -> "_pendientes" (church name, date, noise,
@@ -26,6 +26,7 @@ import subprocess
 import unicodedata
 from pathlib import Path
 
+from worshipdeck import bible
 from worshipdeck.builder import DEFAULT_HYMNAL, DEFAULT_LIBRARY, load_library
 
 HYMN_RE = re.compile(r"\b(?:himno|h\.?)\s*(?:n[o°º.]*\s*)?#?\s*(\d{1,3})\b|^\s*#\s*(\d{1,3})\b", re.IGNORECASE)
@@ -169,8 +170,15 @@ def scripture_items(line):
     if not any(w in BOOKS for w in norm(book).split()):  # "Domingo 10:00" is not a passage
         return []
     ranges = MORE_REF_RE.findall(line[m.start(2):])
-    return [{"op": "scripture", "book": book, "range": re.sub(r"\s+", "", r).replace("–", "-"),
-             "chunks": [[SCRIPTURE_TODO]]} for r in ranges]
+    items = []
+    for r in ranges:
+        rng = re.sub(r"\s+", "", r).replace("–", "-")
+        try:
+            chunks = bible.passage_chunks(book, rng)
+        except KeyError:
+            chunks = [[SCRIPTURE_TODO]]  # unknown book spelling or a range RVR1960 doesn't have
+        items.append({"op": "scripture", "book": book, "range": rng, "chunks": chunks})
+    return items
 
 
 def clean(text):
@@ -267,7 +275,8 @@ def warnings(spec):
     if not any(i["op"] == "sermon" for i in spec["items"]):
         out.append("sin prédica: pasa --sermon-title y --passage (el flyer casi nunca la trae)")
     if any(c == [SCRIPTURE_TODO] for i in spec["items"] if i["op"] == "scripture" for c in i["chunks"]):
-        out.append(f"hay pasajes con {SCRIPTURE_TODO}: pega el texto RV1960 en el spec antes de `build`")
+        out.append(f"hay pasajes con {SCRIPTURE_TODO} (libro o rango que no está en RVR1960): "
+                   "corrige la cita o pega el texto en el spec antes de `build`")
     for p in spec.get("_pendientes", []):
         if isinstance(p, str):
             out.append(f"sin match: {p!r} (si es una canción, agrégala con `worshipdeck song add`)")

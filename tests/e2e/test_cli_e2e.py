@@ -40,7 +40,8 @@ def test_make_writes_the_deck_and_its_spec(deck):
     assert len(Presentation(str(path)).slides) == 72
     spec = json.loads(path.with_suffix(".spec.json").read_text(encoding="utf-8"))
     assert [i["op"] for i in spec["items"]][-2:] == ["sermon", "scripture"]
-    assert "RV1960" in r.stderr  # the passage text is still to paste
+    assert spec["items"][-1]["chunks"][0][1].startswith("Como el ciervo brama")  # RVR1960 filled in
+    assert "pegar texto" not in r.stderr
 
 
 def test_letras_pdf_from_the_reviewed_deck(deck):
