@@ -36,7 +36,7 @@ def sept6_deck(tmp_path_factory):
     return out
 
 
-def test_output_is_a_valid_pptx_whose_images_all_resolve(sept6_deck):
+def test_cl_12_output_is_a_valid_pptx_whose_images_all_resolve(sept6_deck):
     assert zipfile.ZipFile(sept6_deck).testzip() is None
     prs = Presentation(str(sept6_deck))
     for slide in prs.slides:
@@ -45,7 +45,7 @@ def test_output_is_a_valid_pptx_whose_images_all_resolve(sept6_deck):
                 assert rel.target_part.blob, f"broken image on slide {prs.slides.index(slide) + 1}"
 
 
-def test_service_order_follows_the_flyer(sept6_deck):
+def test_ac_04_service_order_follows_the_flyer(sept6_deck):
     texts = [" ".join(slide_lines(s)) for s in Presentation(str(sept6_deck)).slides]
     markers = ["propósito", "Himno 64", "Amigo Fiel", "Himno 83", "Ante ti", "Mi Pastor",
                "Presencia de Dios", "Como el ciervo"]
@@ -54,20 +54,20 @@ def test_service_order_follows_the_flyer(sept6_deck):
     assert len(texts) == 75  # 3 intro + 17 + 11 + 19 + 13 + 6 + sermon + 2 + 3 passage slides
 
 
-def test_hymn_64_matches_the_operators_deck(sept6_deck):
+def test_ac_05_hymn_64_matches_the_operators_deck(sept6_deck):
     ours = [slide_lines(s) for s in list(Presentation(str(sept6_deck)).slides)[3:20]]
     hers = [slide_lines(s) for s in list(Presentation(str(SEPT6)).slides)[3:20]]
     assert [line.lower() for line in ours[0]] == [line.lower() for line in hers[0]]  # title slide
     assert [fold(s) for s in ours[1:]] == [fold(s) for s in hers[1:]]  # 16 lyric slides
 
 
-def test_psalm_slides_match_the_operators_deck(sept6_deck):
+def test_ac_06_psalm_slides_match_the_operators_deck(sept6_deck):
     ours = [slide_lines(s) for s in list(Presentation(str(sept6_deck)).slides)[-5:]]
     hers = [slide_lines(s) for s in list(Presentation(str(SEPT6)).slides)[61:66]]
     assert ours == hers  # Salmos 42:1-2 and 63:1-3: reference slides, verse text, grouping
 
 
-def test_every_hymn_line_reaches_a_slide_once_per_sung_stanza(sept6_deck):
+def test_cl_13_every_hymn_line_reaches_a_slide_once_per_sung_stanza(sept6_deck):
     parsed, _ = B.load_hymn(REAL_HYMNAL, 83)
     sung = [line for _, lines, _ in B.hymn_sections(parsed, "auto", "auto") for line in lines]
     slides = list(Presentation(str(sept6_deck)).slides)
@@ -76,6 +76,6 @@ def test_every_hymn_line_reaches_a_slide_once_per_sung_stanza(sept6_deck):
     assert fold(shown) == fold(sung)
 
 
-def test_the_deck_keeps_the_templates_slide_size(sept6_deck):
+def test_cl_14_the_deck_keeps_the_templates_slide_size(sept6_deck):
     built, template = Presentation(str(sept6_deck)), Presentation(str(REAL_TEMPLATE))
     assert (built.slide_width, built.slide_height) == (template.slide_width, template.slide_height)

@@ -24,7 +24,7 @@ def _run():
     print(f"\n{len(fns)} passed")
 
 
-def test_clone_slide_copies_background():
+def test_eg_17_clone_slide_copies_background():
     prs = Presentation(str(REF / "example-template.pptx"))
     src = next(iter(prs.slides))
     # give the source slide a <p:bg>
@@ -43,7 +43,7 @@ def test_clone_slide_copies_background():
     assert new._element.find(qn("p:cSld")).find(qn("p:bg")) is not None
 
 
-def test_example_build_and_import_deck_roundtrip():
+def test_ac_11_example_build_and_import_deck_roundtrip():
     with tempfile.TemporaryDirectory() as d:
         out = Path(d) / "out.pptx"
         spec = Path(d) / "spec.json"
@@ -79,7 +79,7 @@ def test_example_build_and_import_deck_roundtrip():
                 assert abs((box.top + box.height / 2) - prs.slide_height / 2) < 2
 
 
-def test_sermon_op_fills_lead_title_and_reference():
+def test_ac_12_sermon_op_fills_lead_title_and_reference():
     with tempfile.TemporaryDirectory() as d:
         out = Path(d) / "out.pptx"
         spec = Path(d) / "spec.json"
@@ -100,7 +100,7 @@ def test_sermon_op_fills_lead_title_and_reference():
         assert ref.text_frame.text.strip() == "Libro 1"
 
 
-def test_import_deck_skips_hymn_titles_in_either_box():
+def test_eg_18_import_deck_skips_hymn_titles_in_either_box():
     with tempfile.TemporaryDirectory() as d:
         out = Path(d) / "out.pptx"
         spec = Path(d) / "spec.json"
@@ -116,7 +116,7 @@ def test_import_deck_skips_hymn_titles_in_either_box():
         assert B.songs_from_deck(str(out)) == []
 
 
-def test_insert_adds_scripture_without_touching_existing_slides():
+def test_ac_13_insert_adds_scripture_without_touching_existing_slides():
     from lxml import etree
     with tempfile.TemporaryDirectory() as d:
         deck = Path(d) / "deck.pptx"

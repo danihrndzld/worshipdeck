@@ -6,3 +6,6 @@ __pycache__/
 *.spec.json
 build/
 .coverage
+dist/
+.coverage.*
+reportes-pruebas/**/salida.txt

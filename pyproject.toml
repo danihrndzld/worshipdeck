@@ -19,7 +19,12 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-dev = ["pytest>=8", "pytest-cov>=6", "ruff>=0.16"]
+dev = [
+    "coverage>=7.16.2",
+    "pytest>=8",
+    "pytest-cov>=6",
+    "ruff>=0.16",
+]
 
 # Static testing: three buckets (bug / error / style), bugs first.
 [tool.ruff]

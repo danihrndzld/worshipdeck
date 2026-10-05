@@ -44,7 +44,7 @@ CASES = [
 ]
 
 
-@pytest.mark.parametrize("line, kind, expected", CASES, ids=[c[0] for c in CASES])
+@pytest.mark.parametrize("line, kind, expected", CASES, ids=["EP-22-Himno 64", "EP-23-HIMNO #83", "EP-24-H. 83", "EP-25-#83", "EP-26-Himno No. 83", "BVA-14-Himno 0", "BVA-15-Himno 1", "BVA-16-Himno 412", "BVA-17-Himno 413", "EP-27-Al estar ante Ti", "EP-28-AL ESTAR ANTE TI", "EP-29-El senor es mi pastor", "EP-30-Al estar ante Tl", "BVA-18-Al estar", "EP-31-Jehova es mi pastor", "EP-32-Salmos 42:1-2", "EP-33-1 Corintios 13:4-7", "EP-34-Salmos 42:1-2 & 63:1-3", "EP-35-Domingo 10:00", "EP-36-IGLESIA AMIGOS", "EP-37-decoracion"])
 def test_line_partition(line, kind, expected, library):
     items, pendientes = F.parse_flyer_text(line, REAL_HYMNAL, library)
     if kind == HYMN:
@@ -59,8 +59,19 @@ def test_line_partition(line, kind, expected, library):
         assert items == [] and pendientes == []
 
 
-def test_flyer_order_is_kept(library):
+def test_ac_02_flyer_order_is_kept(library):
     text = "ALABANZAS\nHimno 64\nEres mi amigo fiel\nHimno 83\nAl estar ante Ti\nEl Señor es mi pastor"
     items, _ = F.parse_flyer_text(text, REAL_HYMNAL, library)
     assert [i.get("himno") or i.get("key") for i in items] == [
         64, "eres-mi-amigo-fiel", 83, "al-estar-ante-ti", "el-senor-es-mi-pastor"]
+
+
+# Risk 6 (a hymn or song silently swapped or lost): 3-value boundaries, so each edge also gets
+# its inner neighbour. 0.8 cutoff: "Al estar an" scores 0.81 against "al estar ante ti", "Al estar a" 0.77.
+@pytest.mark.parametrize("line, expected", [("Himno 2", 2), ("Himno 411", 411),
+                                            ("Al estar an", "al-estar-ante-ti"), ("Al estar a", None)],
+                         ids=["BVA-32-Himno 2", "BVA-33-Himno 411", "BVA-34-corte-0.81", "BVA-35-corte-0.77"])
+def test_three_value_neighbours(line, expected, library):
+    items, _ = F.parse_flyer_text(line, REAL_HYMNAL, library)
+    got = (items[0].get("himno") or items[0].get("key")) if items else None
+    assert got == expected

@@ -7,7 +7,7 @@ sys.path.insert(0, str(REPO))
 from worshipdeck import lyrics_pdf as L  # noqa: E402
 
 
-def test_join_continuations_rejoins_screen_breaks():
+def test_ep_21_join_continuations_rejoins_screen_breaks():
     assert L.join_continuations(["Mi alma te anhela ", "y tiene sed", "Para ver tu gloria"]) == \
         ["Mi alma te anhela y tiene sed", "Para ver tu gloria"]
 

@@ -23,13 +23,13 @@ def flyer_img(tmp_path):
                       blurred={"Himno 83"})
 
 
-def test_clear_lines_are_read_top_to_bottom(flyer_img):
+def test_ep_55_clear_lines_are_read_top_to_bottom(flyer_img):
     read = [line for line in F.ocr_lines(flyer_img) if line["text"]]
     assert [line["text"] for line in read] == ["IGLESIA AMIGOS", "Himno 64", "Al estar ante Ti"]
     assert all(line["conf"] >= F.MIN_CONF for line in read)
 
 
-def test_an_unreadable_line_is_still_reported_where_it_is(flyer_img):
+def test_eg_11_an_unreadable_line_is_still_reported_where_it_is(flyer_img):
     lines = F.ocr_lines(flyer_img)
     y_blurred = 60 + 140 * 2  # third line in draw_flyer
     doubtful = [line for line in lines if line["conf"] < F.MIN_CONF]
@@ -52,7 +52,7 @@ def run_cli(monkeypatch, answers, *argv):
     return asked
 
 
-def test_cli_asks_with_a_crop_and_uses_the_answer(monkeypatch, tmp_path, flyer_img):
+def test_st_06_cli_asks_with_a_crop_and_uses_the_answer(monkeypatch, tmp_path, flyer_img):
     spec_path, crops = tmp_path / "spec.json", tmp_path / "dudas"
     asked = run_cli(monkeypatch, ["-", "Himno 83"], "parse", str(flyer_img),
                     "-o", str(spec_path), "--crops", str(crops), "--output", "X.pptx")
@@ -63,7 +63,7 @@ def test_cli_asks_with_a_crop_and_uses_the_answer(monkeypatch, tmp_path, flyer_i
     assert "_pendientes" not in spec
 
 
-def test_cli_without_a_terminal_lists_doubts_with_crops(monkeypatch, tmp_path, flyer_img, capsys):
+def test_eg_12_cli_without_a_terminal_lists_doubts_with_crops(monkeypatch, tmp_path, flyer_img, capsys):
     monkeypatch.setattr("sys.stdin.isatty", lambda: False)
     crops = tmp_path / "dudas"
     assert cli.main(["parse", str(flyer_img), "--crops", str(crops), "--output", "X.pptx"]) == 0

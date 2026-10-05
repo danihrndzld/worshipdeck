@@ -34,7 +34,7 @@ def deck(tmp_path_factory):
     return d / "SEPTIEMBRE 6.pptx", r
 
 
-def test_make_writes_the_deck_and_its_spec(deck):
+def test_ac_15_make_writes_the_deck_and_its_spec(deck):
     path, r = deck
     assert zipfile.ZipFile(path).testzip() is None
     assert len(Presentation(str(path)).slides) == 72
@@ -44,7 +44,7 @@ def test_make_writes_the_deck_and_its_spec(deck):
     assert "pegar texto" not in r.stderr
 
 
-def test_letras_pdf_from_the_reviewed_deck(deck):
+def test_ac_16_letras_pdf_from_the_reviewed_deck(deck):
     path, _ = deck
     r = run("letras", "--deck", path, "--reviewed", cwd=path.parent)
     assert r.returncode == 0, r.stderr
@@ -52,7 +52,7 @@ def test_letras_pdf_from_the_reviewed_deck(deck):
     assert len(PdfReader(pdf).pages) == 5  # one page per song: 2 hymns + 3 songs
 
 
-def test_letras_refuses_a_deck_nobody_reviewed(deck):
+def test_ac_17_letras_refuses_a_deck_nobody_reviewed(deck):
     path, _ = deck
     r = run("letras", "--deck", path, cwd=path.parent)
     assert r.returncode != 0 and "--reviewed" in r.stderr
@@ -60,14 +60,14 @@ def test_letras_refuses_a_deck_nobody_reviewed(deck):
 
 @pytest.mark.slow
 @needs_soffice
-def test_libreoffice_renders_every_slide(deck, tmp_path):
+def test_ac_18_libreoffice_renders_every_slide(deck, tmp_path):
     path, _ = deck
     subprocess.run(["soffice", "--headless", "--convert-to", "pdf", "--outdir", tmp_path, path],
                    capture_output=True, timeout=180, check=True)
     assert len(PdfReader(tmp_path / f"{path.stem}.pdf").pages) == 72
 
 
-def test_interactive_questions_through_a_real_terminal(tmp_path):
+def test_ac_19_interactive_questions_through_a_real_terminal(tmp_path):
     img = draw_flyer(tmp_path / "flyer.png", ["IGLESIA AMIGOS", "Himno 64", "Himno 83"], blurred={"Himno 83"})
     shim = tmp_path / "bin"
     shim.mkdir()
@@ -90,7 +90,7 @@ def test_interactive_questions_through_a_real_terminal(tmp_path):
     assert [i.get("himno") for i in spec["items"][1:]] == [64, 83]
 
 
-def test_a_missing_image_fails_with_a_message_not_a_traceback(tmp_path):
+def test_eg_19_a_missing_image_fails_with_a_message_not_a_traceback(tmp_path):
     r = run("parse", tmp_path / "no-existe.png", "--no-ask", cwd=tmp_path)
     assert r.returncode != 0
     assert "Traceback" not in r.stderr and "tesseract" in r.stderr

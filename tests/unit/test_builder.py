@@ -22,7 +22,7 @@ def _run():
     print(f"\n{len(fns)} passed")
 
 
-def test_parse_hymn_handles_dot_glued_and_lowercase():
+def test_eg_05_parse_hymn_handles_dot_glued_and_lowercase():
     # "1." separator, a verse number glued onto text ("3¡"), and a lowercase
     # verse start ("4 la") -- all three used to be mishandled.
     raw = "\n".join([
@@ -40,22 +40,22 @@ def test_parse_hymn_handles_dot_glued_and_lowercase():
     assert p["chorus"][0] == "Linea del coro,"
 
 
-def test_parse_hymn_accepts_coro_comma_typo():
+def test_eg_06_parse_hymn_accepts_coro_comma_typo():
     raw = "132\nTITULO\n1 Linea uno,\nlinea dos.\nCoro,- :::Linea del coro:::\nOtra del coro."
     assert B.parse_hymn(raw)["chorus"] == [":::Linea del coro:::", "Otra del coro."]
 
 
-def test_hymn_title_from_caps_header():
+def test_ep_17_hymn_title_from_caps_header():
     raw = "48\nHALLE UN BUEN AMIGO\nKey F.\n1 Halle un buen amigo,"
     assert B.hymn_title(raw) == "Halle un buen amigo"
 
 
-def test_hymn_title_joins_wrapped_header_and_keeps_divine_names():
+def test_eg_07_hymn_title_joins_wrapped_header_and_keeps_divine_names():
     raw = "7\nCANTAD A CRISTO LOS DE LIMPIO\nCORAZON\nKey G.\n444\n1 Primera linea,"
     assert B.hymn_title(raw) == "Cantad a Cristo los de limpio corazon"
 
 
-def test_auto_chunk_size_by_line_length():
+def test_ep_18_auto_chunk_size_by_line_length():
     assert B.auto_chunk_size(["Linea corta,", "otra corta"]) == 4
     assert B.auto_chunk_size(["Una linea bastante larga para una sola vez,", "x"]) == 2
     parsed = {"verses": [["a,", "b,", "c,", "d,", "e,", "f,", "g,", "h."]], "chorus": ["coro,", "fin."]}
@@ -63,7 +63,7 @@ def test_auto_chunk_size_by_line_length():
     assert [s[2] for s in B.hymn_sections(parsed, 2, "whole")] == [2, "whole"]
 
 
-def test_capitalize_and_break_long_line():
+def test_ep_19_capitalize_and_break_long_line():
     assert B.capitalize_first("no hay otro manantial") == "No hay otro manantial"
     assert B.break_long_line("Renuevame, Senor Jesus, pon en mi corazon", 20) == \
         ["Renuevame,", "Senor Jesus,", "pon en mi corazon"]
@@ -78,21 +78,21 @@ def test_capitalize_and_break_long_line():
         ["De madrugada yo me acercare a ti"]
 
 
-def test_apply_format_lowercase_continuation_and_doubled_line():
+def test_ep_20_apply_format_lowercase_continuation_and_doubled_line():
     assert B.apply_format(["mi alma te anhela y tiene sed"], None) == \
         ["Mi alma te anhela", "y tiene sed"]
     assert B.apply_format(["Oh, tu fidelidad, oh, tu fidelidad"], None) == \
         ["//Oh, tu fidelidad//"]
 
 
-def test_estimate_lines_wraps_by_width():
+def test_bva_13_estimate_lines_wraps_by_width():
     size = 1257554  # 99pt in EMU
     wide = 16666150
     assert B.estimate_lines(["Hermoso eres, mi Senor"], wide, size) == 1
     assert B.estimate_lines(["Levantemos nuestras manos y adoremos"], wide, size) == 2
 
 
-def test_set_textbox_lines_never_drops_a_line():
+def test_eg_08_set_textbox_lines_never_drops_a_line():
     # Build a text box whose 3rd paragraph has NO run (blank separator), then
     # set 3 real lines: the old code dropped the line on the run-less paragraph.
     prs = Presentation(str(REF / "example-template.pptx"))
@@ -106,7 +106,7 @@ def test_set_textbox_lines_never_drops_a_line():
     assert [p.text for p in tf.paragraphs] == ["uno", "dos", "tres"]
 
 
-def test_sermon_boxes_map_by_layout_not_shape_order():
+def test_eg_09_sermon_boxes_map_by_layout_not_shape_order():
     # The sermon template is found by layout (lead above the biggest-font
     # title, reference below it), so a logo box further down is ignored and
     # shape order doesn't matter.

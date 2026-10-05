@@ -42,7 +42,7 @@ def make_deck(path, songs):
     prs.save(path)
 
 
-def test_read_deck_finds_songs_and_skips_scripture():
+def test_ep_62_read_deck_finds_songs_and_skips_scripture():
     with tempfile.TemporaryDirectory() as d:
         deck = Path(d) / "DIA 1.pptx"
         make_deck(deck, [(("Cancion", "uno"), ["Linea a\nLinea b", "//Linea c//"])])
@@ -51,7 +51,7 @@ def test_read_deck_finds_songs_and_skips_scripture():
         assert songs[0]["slides"] == [["Linea a", "Linea b"], ["//Linea c//"]]
 
 
-def test_one_song_per_page():
+def test_ac_14_one_song_per_page():
     with tempfile.TemporaryDirectory() as d:
         deck, out = Path(d) / "DIA 1.pptx", Path(d) / "out.pdf"
         make_deck(deck, [(("Primera", "cancion"), ["Linea uno\nLinea dos"]),

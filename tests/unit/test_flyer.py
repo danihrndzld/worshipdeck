@@ -21,7 +21,7 @@ def hymnal(d):
     return path
 
 
-def test_flyer_lines_become_ops_in_order():
+def test_ep_15_flyer_lines_become_ops_in_order():
     text = "\n".join([
         "IGLESIA AMIGOS", "Domingo 10:00 AM", "ALABANZAS",
         "Himno 64", "• Al estar ante Ti", "H. 83", "Jehova es mi pastor",
@@ -35,18 +35,18 @@ def test_flyer_lines_become_ops_in_order():
     assert pend == ["IGLESIA AMIGOS", "Domingo 10:00 AM", "ALABANZAS", "Cancion nueva sin letra"], pend
 
 
-def test_unknown_hymn_number_is_not_a_hymn():
+def test_ep_16_unknown_hymn_number_is_not_a_hymn():
     with tempfile.TemporaryDirectory() as d:
         items, pend = F.parse_flyer_text("Himno 999", hymnal(d), {})
     assert items == [] and pend == ["Himno 999"]
 
 
-def test_next_sunday_name():
+def test_bva_12_next_sunday_name():
     assert F.next_sunday_name(datetime.date(2026, 10, 5)) == "OCTUBRE 11.pptx"  # a Monday
     assert F.next_sunday_name(datetime.date(2026, 10, 11)) == "OCTUBRE 11.pptx"  # Sunday itself
 
 
-def test_make_spec_adds_intro_sermon_and_passage():
+def test_ac_01_make_spec_adds_intro_sermon_and_passage():
     with tempfile.TemporaryDirectory() as d:
         spec = F.make_spec("Himno 64", "X.pptx", "Esperanza", passage="Salmos 1:1-3", hymnal=hymnal(d))
     ops = [i["op"] for i in spec["items"]]
@@ -56,7 +56,7 @@ def test_make_spec_adds_intro_sermon_and_passage():
     assert not any("pegar texto" in w for w in F.warnings(spec))
 
 
-def test_a_passage_rvr1960_lacks_is_left_to_fill_in():
+def test_eg_01_a_passage_rvr1960_lacks_is_left_to_fill_in():
     spec = F.make_spec("", "X.pptx", "Tema", passage="Salmos 151:1")
     assert spec["items"][-1]["chunks"] == [[F.SCRIPTURE_TODO]]
     assert any("pegar texto" in w for w in F.warnings(spec))
@@ -71,13 +71,13 @@ TSV = "\n".join([
 ])
 
 
-def test_tsv_groups_words_into_lines_with_weakest_conf():
+def test_eg_02_tsv_groups_words_into_lines_with_weakest_conf():
     lines = F.lines_from_tsv(TSV)
     assert lines == [{"text": "Himno 6?", "conf": 31, "box": (10, 10, 150, 50)},
                      {"text": "Hosanna", "conf": 92, "box": (10, 70, 130, 110)}], lines
 
 
-def test_ask_fixes_drops_and_rechecks_doubtful_lines():
+def test_st_05_ask_fixes_drops_and_rechecks_doubtful_lines():
     recs = [{"text": "Himno 6?", "conf": 31, "box": (0, 0, 1, 1)},     # garbled number
             {"text": "IGLESIA AMIGOS", "conf": 95, "box": (0, 0, 1, 1)},  # noise
             {"text": "Al estar ante Ti", "conf": 96, "box": (0, 0, 1, 1)},
@@ -97,7 +97,7 @@ def test_ask_fixes_drops_and_rechecks_doubtful_lines():
     assert [p["text"] for p in pend] == ["Cancion nueva"]  # kept as is -> still pending
 
 
-def test_without_ask_shaky_matches_are_kept_and_listed():
+def test_eg_03_without_ask_shaky_matches_are_kept_and_listed():
     recs = [{"text": "Himno 64", "conf": 40, "box": (0, 0, 1, 1)}]
     with tempfile.TemporaryDirectory() as d:
         items, pend = F.parse_flyer_text(recs, hymnal(d), {})
@@ -105,7 +105,7 @@ def test_without_ask_shaky_matches_are_kept_and_listed():
     assert pend[0]["matched"] and pend[0]["conf"] == 40
 
 
-def test_unread_bands_finds_ink_no_ocr_box_covers():
+def test_eg_04_unread_bands_finds_ink_no_ocr_box_covers():
     from PIL import Image, ImageDraw
     with tempfile.TemporaryDirectory() as d:
         img = Path(d) / "f.png"
