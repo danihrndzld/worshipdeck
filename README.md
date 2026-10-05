@@ -84,8 +84,12 @@ El formato del spec, las reglas de chunking y las convenciones del operador est�
 ## Tests
 
 ```bash
-for t in tests/test_*.py; do uv run python $t; done
+uv run ruff check .   # estático
+uv run pytest         # 116 tests en ~5 s: unit, integración y e2e (sin el render de LibreOffice)
 ```
+
+La estrategia (Testing Trophy), la técnica de diseño detrás de cada prueba y los mutantes que la
+suite mata están en [`tests/README.md`](tests/README.md). CI corre estático → unit + integración → e2e.
 
 ## Deploy (pendiente)
 

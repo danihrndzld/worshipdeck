@@ -1,0 +1,46 @@
+# Testing Trophy as a pipeline: static -> unit + integration -> e2e.
+# Each stage gates the next; the cheapest signal runs first.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - run: uv sync --locked
+      - name: Ruff (bug, error and style buckets in pyproject.toml)
+        run: uv run ruff check . --output-format github
+
+  test:
+    needs: static
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-spa
+      - run: uv sync --locked
+      - name: Unit + integration, with branch coverage
+        run: uv run pytest -m "not e2e" --cov=worshipdeck --cov-branch --cov-report=term-missing
+
+  e2e:
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - run: >-
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends
+          tesseract-ocr tesseract-ocr-spa libreoffice-impress
+      - run: uv sync --locked
+      - name: CLI end to end, including the LibreOffice render
+        run: uv run pytest -m e2e

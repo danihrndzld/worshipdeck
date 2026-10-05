@@ -7,10 +7,10 @@ background photography, custom fonts, or logo -- point the real tool at your
 own church's most recent deck for actual styling.
 """
 from pptx import Presentation
-from pptx.util import Emu, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.text import PP_ALIGN
+from pptx.util import Emu, Pt
 
 WIDTH = Emu(18288000)
 HEIGHT = Emu(10287000)

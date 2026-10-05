@@ -18,15 +18,23 @@ import unicodedata
 from pathlib import Path
 
 from pptx import Presentation
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.units import inch
-from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.colors import HexColor
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.units import inch
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import (BaseDocTemplate, Frame, PageTemplate, Paragraph,
-                                Spacer, KeepTogether, PageBreak,
-                                NextPageTemplate, FrameBreak)
+from reportlab.platypus import (
+    BaseDocTemplate,
+    Frame,
+    FrameBreak,
+    KeepTogether,
+    NextPageTemplate,
+    PageBreak,
+    PageTemplate,
+    Paragraph,
+    Spacer,
+)
 
 from worshipdeck.builder import DEFAULT_HYMNAL, hymn_sections, load_hymn
 
@@ -137,7 +145,7 @@ def render(songs, out, heading, hymnal):
 
     def header(song):
         items = [Paragraph(f"Himno {song['hymn']}", num)] if song["hymn"] else []
-        return items + [Paragraph(song["title"], title)]
+        return [*items, Paragraph(song["title"], title)]
 
     def block_parts(blocks, size):
         lyric = ParagraphStyle("lyric", fontName=regular, fontSize=size, leading=size * 1.3, textColor=ink)

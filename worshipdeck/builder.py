@@ -43,7 +43,7 @@ DEFAULT_LIBRARY = SKILL_DIR / "reference" / "song-library.json"
 # may start lowercase (hymnals have the odd typo, e.g. "4 la fe..."), so we
 # don't constrain its first character.
 VERSE_RE = re.compile(r"^\s*(\d{1,2})(?!\d)[.\-]?\s*(\S.*\S|\S)\s*$")
-CHORUS_RE = re.compile(r"^\s*coro[.,:-]*\s*(.*)$", re.IGNORECASE)  # some pages print "Coro,-"
+CHORUS_RE = re.compile(r"^\s*coro\b[.,:-]*\s*(.*)$", re.IGNORECASE)  # some pages print "Coro,-"
 CREDIT_RE = re.compile(r"^\s*-\s*\S")  # trailing "-Tr. X." / "-Ejemplo." credit line
 PAGE_NUM_RE = re.compile(r"^\s*\d+\s*$")
 
@@ -146,7 +146,7 @@ def set_textbox_lines(shape, lines):
             txBody.append(copy.deepcopy(tf.paragraphs[-1]._p))
         while len(tf.paragraphs) > len(lines):
             tf.paragraphs[-1]._p.getparent().remove(tf.paragraphs[-1]._p)
-        for p, line in zip(tf.paragraphs, lines):
+        for p, line in zip(tf.paragraphs, lines, strict=True):
             if p.runs:
                 p.runs[0].text = line
         return
@@ -155,7 +155,7 @@ def set_textbox_lines(shape, lines):
         p._p.getparent().remove(p._p)
     for _ in lines:
         txBody.append(copy.deepcopy(donor))
-    for p, line in zip(tf.paragraphs, lines):
+    for p, line in zip(tf.paragraphs, lines, strict=True):
         p.runs[0].text = line
         for extra in p.runs[1:]:
             extra._r.getparent().remove(extra._r)
@@ -186,7 +186,7 @@ def parse_hymn(raw_text):
     lines = [l for l in lines if l and not PAGE_NUM_RE.match(l)]
 
     verses, chorus = [], []
-    current, in_chorus = None, False
+    current = None
     started = False
 
     for line in lines:
@@ -203,10 +203,8 @@ def parse_hymn(raw_text):
         if m:
             current = []
             verses.append(current)
-            in_chorus = False
             current.append(m.group(2))
         elif cm:
-            in_chorus = True
             current = chorus
             if cm.group(1):
                 current.append(cm.group(1))
@@ -595,9 +593,8 @@ def detect_template_slides(prs, title_index=None, lyric_index=None):
             second_text = boxes[1].text_frame.text.strip()
             if re.match(r"^himno\s+\d+$", second_text, re.IGNORECASE):
                 title_slide = s
-        if lyric_slide is None and len(boxes) == 1:
-            if len(boxes[0].text_frame.paragraphs) >= 2:
-                lyric_slide = s
+        if lyric_slide is None and len(boxes) == 1 and len(boxes[0].text_frame.paragraphs) >= 2:
+            lyric_slide = s
 
     if title_slide is None or lyric_slide is None:
         raise SystemExit(

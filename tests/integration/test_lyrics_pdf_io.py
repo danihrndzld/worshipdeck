@@ -1,8 +1,6 @@
-"""Tests for lyrics_pdf. Run: `python3 tests/test_lyrics_pdf.py` (or pytest).
-
-Builds a tiny synthetic deck in a temp dir; never uses real church material.
+"""Lyrics PDF tests that build a small deck and render the PDF on disk.
+Never uses real church material.
 """
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -11,7 +9,7 @@ from pptx import Presentation
 from pptx.util import Inches, Pt
 from pypdf import PdfReader
 
-REPO = Path(__file__).resolve().parent.parent
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 from worshipdeck import lyrics_pdf as L  # noqa: E402
 
@@ -44,11 +42,6 @@ def make_deck(path, songs):
     prs.save(path)
 
 
-def test_join_continuations_rejoins_screen_breaks():
-    assert L.join_continuations(["Mi alma te anhela ", "y tiene sed", "Para ver tu gloria"]) == \
-        ["Mi alma te anhela y tiene sed", "Para ver tu gloria"]
-
-
 def test_read_deck_finds_songs_and_skips_scripture():
     with tempfile.TemporaryDirectory() as d:
         deck = Path(d) / "DIA 1.pptx"
@@ -67,16 +60,6 @@ def test_one_song_per_page():
         pages = [p.extract_text() for p in PdfReader(out).pages]
         assert len(pages) == 2
         assert "Primera cancion" in pages[0] and "Segunda cancion" in pages[1]
-
-
-def test_refuses_without_reviewed():
-    with tempfile.TemporaryDirectory() as d:
-        deck = Path(d) / "DIA 1.pptx"
-        make_deck(deck, [(("Cancion", "uno"), ["Linea a"])])
-        run = subprocess.run([sys.executable, "-m", "worshipdeck.lyrics_pdf", "--deck", str(deck)], cwd=REPO,
-                             capture_output=True, text=True)
-        assert run.returncode != 0 and "--reviewed" in run.stderr
-        assert not (Path(d) / "Letras - DIA 1.pdf").exists()
 
 
 if __name__ == "__main__":

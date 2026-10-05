@@ -31,11 +31,7 @@ from worshipdeck.builder import DEFAULT_HYMNAL, DEFAULT_LIBRARY, load_library
 HYMN_RE = re.compile(r"\b(?:himno|h\.?)\s*(?:n[o°º.]*\s*)?#?\s*(\d{1,3})\b|^\s*#\s*(\d{1,3})\b", re.IGNORECASE)
 REF_RE = re.compile(r"^\s*((?:[1-3]\s*)?[A-Za-zÁÉÍÓÚÜÑáéíóúüñ. ]+?)\s+(\d{1,3}\s*:\s*\d{1,3}(?:\s*[-–]\s*\d{1,3})?)")
 MORE_REF_RE = re.compile(r"(\d{1,3}\s*:\s*\d{1,3}(?:\s*[-–]\s*\d{1,3})?)")
-BOOKS = """genesis exodo levitico numeros deuteronomio josue jueces rut samuel reyes cronicas
-esdras nehemias ester job salmos salmo proverbios eclesiastes cantares isaias jeremias lamentaciones
-ezequiel daniel oseas joel amos abdias jonas miqueas nahum habacuc sofonias hageo zacarias malaquias
-mateo marcos lucas juan hechos romanos corintios galatas efesios filipenses colosenses
-tesalonicenses timoteo tito filemon hebreos santiago pedro judas apocalipsis""".split()
+BOOKS = ["genesis", "exodo", "levitico", "numeros", "deuteronomio", "josue", "jueces", "rut", "samuel", "reyes", "cronicas", "esdras", "nehemias", "ester", "job", "salmos", "salmo", "proverbios", "eclesiastes", "cantares", "isaias", "jeremias", "lamentaciones", "ezequiel", "daniel", "oseas", "joel", "amos", "abdias", "jonas", "miqueas", "nahum", "habacuc", "sofonias", "hageo", "zacarias", "malaquias", "mateo", "marcos", "lucas", "juan", "hechos", "romanos", "corintios", "galatas", "efesios", "filipenses", "colosenses", "tesalonicenses", "timoteo", "tito", "filemon", "hebreos", "santiago", "pedro", "judas", "apocalipsis"]
 MONTHS = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO",
           "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"]
 SCRIPTURE_TODO = "[pegar texto RV1960]"
@@ -48,7 +44,7 @@ def tesseract(image_path, lang, *extra):
     if not shutil.which("tesseract"):
         raise SystemExit("tesseract not found: brew install tesseract (plus spa.traineddata)")
     run = subprocess.run(["tesseract", str(image_path), "stdout", "-l", lang, *extra],
-                         capture_output=True, text=True)
+                         capture_output=True, text=True, check=False)
     if run.returncode != 0:
         raise SystemExit(f"tesseract failed: {run.stderr.strip()}")
     return run.stdout
@@ -74,12 +70,12 @@ def unread_bands(image_path, boxes, diff=20, min_h=12, gap=8):
     # ponytail: row-profile heuristic on a flat background; a photo background makes
     # bands taller than a quarter of the image, which are skipped. Swap for a text
     # detector (EAST/CRAFT) if flyers move to busy photos.
-    from PIL import Image
+    from PIL import Image, ImageStat
     with Image.open(image_path) as img:
         g = img.convert("L")
     w, h = g.size
     px = g.load()
-    bg = sorted(g.getdata())[w * h // 2]
+    bg = ImageStat.Stat(g).median[0]
     rows = [sum(abs(px[x, y] - bg) > diff for x in range(0, w, 2)) > w // 400 for y in range(h)]
     bands, start, last = [], None, -gap
     for y, ink in enumerate(rows + [False] * gap):
@@ -107,7 +103,7 @@ def lines_from_tsv(tsv):
     rows = tsv.splitlines()
     header = rows[0].split("\t")
     for row in rows[1:]:
-        r = dict(zip(header, row.split("\t")))
+        r = dict(zip(header, row.split("\t"), strict=False))  # empty text field may be cut
         if r.get("level") != "5" or not r.get("text", "").strip():
             continue
         key = (r["page_num"], r["block_num"], r["par_num"], r["line_num"])
@@ -248,7 +244,7 @@ def make_spec(lines, output=None, sermon_title=None, sermon_lead="El tema de hoy
     lib_path = library or (str(DEFAULT_LIBRARY) if DEFAULT_LIBRARY.exists() else None)
     items, pendientes = parse_flyer_text(lines, hymnal, load_library(lib_path), ask)
     spec = {"output": output or next_sunday_name(),
-            "items": [{"op": "clone_range", "start": 1, "end": 3}] + items}
+            "items": [{"op": "clone_range", "start": 1, "end": 3}, *items]}
     if hymnal != DEFAULT_HYMNAL:
         spec["hymnal"] = str(hymnal)
     if library:

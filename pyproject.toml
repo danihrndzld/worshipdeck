@@ -16,3 +16,36 @@ worshipdeck = "worshipdeck.cli:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-cov>=6", "ruff>=0.16"]
+
+# Static testing: three buckets (bug / error / style), bugs first.
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    # bug: changes behavior
+    "F", "E9", "B", "PLE",
+    # error: same behavior, worse to maintain
+    "PLW", "RUF",
+    # style
+    "I", "E4", "E7", "SIM",
+]
+ignore = [
+    "PLW2901",  # rebinding a loop variable (line = line.strip()) is the idiom in the parsers
+    "PLW0603",  # module-level caches
+    "E741",     # `l` for a line/layout in short comprehensions
+    "RUF001", "RUF002", "RUF003",  # Spanish text: «», –, · are intended characters
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: crosses modules or touches real files/tools (the Trophy's cup)",
+    "e2e: runs the installed CLI as a subprocess, like a user",
+    "slow: over 10 s (LibreOffice render); off locally, on in CI's e2e job",
+]
+addopts = "-ra -m 'not slow'"

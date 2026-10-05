@@ -43,7 +43,7 @@ def make_asker(image, crop_dir):
             crop_dir.mkdir(parents=True, exist_ok=True)
             seen[id(rec)] = flyer.crop_line(image, rec["box"], crop_dir / f"{len(seen) + 1:02}.png")
             if sys.platform == "darwin":
-                subprocess.run(["open", seen[id(rec)]])
+                subprocess.run(["open", seen[id(rec)]], check=False)
             if not rec["text"]:
                 print("\n? Aquí hay texto que no pude leer", file=sys.stderr)
             else:
