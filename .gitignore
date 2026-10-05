@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 *.spec.json
 build/
+.coverage
