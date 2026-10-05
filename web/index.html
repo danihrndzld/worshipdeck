@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>worshipdeck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Oswald:wght@500;600&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="wd" style="min-height: 100vh; display: flex; flex-direction: column; background: #F6F6F3">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E3E3DF">
+    <div class="wrap-wide" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 6px 20px">
+      <a href="#/flyer" style="font: 700 17px/1 var(--g); letter-spacing: -0.02em; color: #18181B; text-decoration: none">worshipdeck</a>
+      <nav style="display: flex; gap: 2px" aria-label="Secciones">
+        <a class="icon-btn nav-a" href="#/biblioteca" aria-label="Biblioteca de canciones"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="17" cy="16" r="3"></circle></svg><span class="navlabel">Biblioteca</span></a>
+        <a class="icon-btn nav-a" href="#/letras" aria-label="PDF de letras"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"></path><path d="M14 3v5h5"></path><path d="M9 13h6M9 17h4"></path></svg><span class="navlabel">PDF de letras</span></a>
+      </nav>
+    </div>
+  </header>
+  <div id="app" style="flex: 1; display: flex; flex-direction: column"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

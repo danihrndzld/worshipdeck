@@ -60,6 +60,18 @@ Un pasaje entra en grupos de hasta 6 líneas por slide; si el `scripture` del sp
 `chunks`, `build` los saca de la Biblia. Una canción que cae en `_pendientes` falta en la biblioteca; agrégala con `worshipdeck song add`
 o mina una deck vieja con `worshipdeck song import-deck --deck VIEJA.pptx`.
 
+### App web
+
+```bash
+uv run flask --app worshipdeck.web run --port 5077   # http://127.0.0.1:5077
+```
+
+La misma secuencia en el navegador, pensada para el teléfono: subir el flyer (el OCR corre en el
+navegador con tesseract.js), corregir las líneas dudosas viendo su recorte, ordenar el culto, prédica,
+lecturas, vista previa y descarga del `.pptx`. Incluye la biblioteca de canciones, la importación desde
+un `.pptx` viejo y el PDF de letras. El frontend es JS plano en `web/`, sin build; la API está en
+`worshipdeck/web.py`. En Vercel (`api/index.py`, `vercel.json`) la biblioteca es de solo lectura.
+
 ### Otros comandos (los mismos de la skill)
 
 ```bash
