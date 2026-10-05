@@ -70,7 +70,7 @@ La misma secuencia en el navegador, pensada para el teléfono: subir el flyer (e
 navegador con tesseract.js), corregir las líneas dudosas viendo su recorte, ordenar el culto, prédica,
 lecturas, vista previa y descarga del `.pptx`. Incluye la biblioteca de canciones, la importación desde
 un `.pptx` viejo y el PDF de letras. El frontend es JS plano en `web/`, sin build; la API está en
-`worshipdeck/web.py`. En Vercel (`api/index.py`, `vercel.json`) la biblioteca es de solo lectura.
+`worshipdeck/web.py`. En Vercel (`[tool.vercel]` en `pyproject.toml`) la biblioteca es de solo lectura.
 
 ### Otros comandos (los mismos de la skill)
 

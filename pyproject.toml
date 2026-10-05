@@ -1,6 +1,6 @@
 [project]
 name = "worshipdeck"
-version = "0.1.0"
+version = "0.1.1"
 description = "Sunday-service PPTX from a flyer image: OCR the song list, pull hymns from the himnario, clone the church's slide style."
 requires-python = ">=3.11"
 dependencies = [
@@ -13,6 +13,10 @@ dependencies = [
 
 [project.scripts]
 worshipdeck = "worshipdeck.cli:main"
+
+# Vercel: zero-config Flask, one function for the API and the app shell in web/.
+[tool.vercel]
+entrypoint = "worshipdeck.web:app"
 
 [build-system]
 requires = ["hatchling"]
