@@ -228,7 +228,7 @@ def load_hymn(hymnal_path, number):
             _HYMNAL_JSON[hymnal_path] = json.loads(Path(hymnal_path).read_text(encoding="utf-8"))["hymns"]
         h = _HYMNAL_JSON[hymnal_path].get(str(number))
         if h is None:
-            raise SystemExit(f"Himno {number} is not in {hymnal_path}")
+            raise SystemExit(f"Himno {number} no está en el himnario ({Path(hymnal_path).name})")
         if h.get("needs_review"):
             print(f"! Himno {number} needs review: {'; '.join(h.get('review_notes', []))}", file=sys.stderr)
         return {"verses": h["verses"], "chorus": h.get("chorus") or [],

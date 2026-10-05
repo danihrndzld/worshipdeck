@@ -17,7 +17,9 @@ import tempfile
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, request, send_file, send_from_directory
+from PIL import Image
 from pptx import Presentation
+from werkzeug.exceptions import HTTPException
 
 from worshipdeck import builder as B
 from worshipdeck import flyer as F
@@ -81,11 +83,19 @@ def image_file(data_url, tmp):
     """Decode the browser's data URL into a file the OCR helpers can open."""
     if not data_url:
         return None
-    raw = base64.b64decode(data_url.split(",", 1)[-1])
+    try:
+        raw = base64.b64decode(data_url.split(",", 1)[-1], validate=True)
+    except ValueError:  # binascii.Error is a ValueError
+        abort(400, "la imagen llegó dañada: vuelve a subirla")
     if raw[4:12] in (b"ftypheic", b"ftypheix", b"ftypmif1"):
         abort(415, "HEIC no se puede leer aquí: cambia la cámara a JPG o manda una captura")
     path = Path(tmp) / "flyer.img"
     path.write_bytes(raw)
+    try:
+        with Image.open(path) as img:
+            img.verify()
+    except (OSError, SyntaxError):  # PIL's UnidentifiedImageError is an OSError
+        abort(400, "eso no parece una imagen: sube una foto o captura en JPG o PNG")
     return path
 
 
@@ -294,6 +304,15 @@ def import_deck():
 @app.errorhandler(501)
 def error(e):
     return jsonify({"error": e.description}), e.code
+
+
+@app.errorhandler(Exception)
+def unexpected(e):
+    """Anything unplanned: JSON for the app, never a stack trace or a server path."""
+    if isinstance(e, HTTPException):
+        return jsonify({"error": e.description}), e.code
+    app.logger.exception(e)
+    return jsonify({"error": "algo falló en el servidor; intenta de nuevo"}), 500
 
 
 # ------------------------------------------------------------------ the app
