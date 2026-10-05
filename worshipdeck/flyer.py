@@ -61,7 +61,12 @@ def ocr_lines(image_path, lang="spa"):
     garbled number ("Himno 6?") marks the whole line. Bands of ink tesseract
     returned nothing for come back as {"text": "", "conf": 0} so they get asked
     about too, instead of silently vanishing."""
-    lines = lines_from_tsv(tesseract(image_path, lang, "-c", "tessedit_create_tsv=1"))
+    return with_unread_bands(image_path, lines_from_tsv(tesseract(image_path, lang, "-c", "tessedit_create_tsv=1")))
+
+
+def with_unread_bands(image_path, lines):
+    """OCR lines (from tesseract here, or tesseract.js in the browser) plus the ink
+    bands none of them cover, top to bottom."""
     unread = [{"text": "", "conf": 0, "box": b} for b in unread_bands(image_path, [l["box"] for l in lines])]
     return sorted(lines + unread, key=lambda l: l["box"][1])
 
