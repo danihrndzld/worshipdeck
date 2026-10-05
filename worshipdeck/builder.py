@@ -231,7 +231,10 @@ def load_hymn(hymnal_path, number):
         h = _HYMNAL_JSON[hymnal_path].get(str(number))
         if h is None:
             raise SystemExit(f"Himno {number} is not in {hymnal_path}")
-        return {"verses": h["verses"], "chorus": h.get("chorus") or []}, h.get("title")
+        if h.get("needs_review"):
+            print(f"! Himno {number} needs review: {'; '.join(h.get('review_notes', []))}", file=sys.stderr)
+        return {"verses": h["verses"], "chorus": h.get("chorus") or [],
+                "choruses": h.get("choruses"), "order": h.get("order")}, h.get("title")
     raw = hymn_page_text(hymnal_path, number)
     return parse_hymn(raw), hymn_title(raw)
 
@@ -242,6 +245,17 @@ def hymn_sections(parsed, verse_chunk_size, chorus_chunk_size):
     sung, and chunk each stanza into slide-sized pieces."""
     def size(lines, requested):
         return auto_chunk_size(lines) if requested == "auto" else requested
+
+    if parsed.get("order"):  # hymnal.json spells it out: "v1", "chorus", "chorus2" (a different last chorus)
+        choruses = parsed.get("choruses") or [parsed["chorus"]]
+        out = []
+        for tag in parsed["order"]:
+            if tag.startswith("v"):
+                out.append(("verse", parsed["verses"][int(tag[1:]) - 1]))
+            else:
+                out.append(("chorus", choruses[int(tag[6:] or 1) - 1]))
+        return [(kind, lines, size(lines, verse_chunk_size if kind == "verse" else chorus_chunk_size))
+                for kind, lines in out]
 
     sections = []
     for verse in parsed["verses"]:

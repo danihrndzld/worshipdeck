@@ -8,6 +8,7 @@
 """
 import argparse
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -21,13 +22,62 @@ def add_flyer_args(p):
     p.add_argument("--sermon-lead", default="El tema de hoy")
     p.add_argument("--passage", help='prédica passage, e.g. "Salmos 42:1-2 & 63:1-3"')
     p.add_argument("--hymnal", help="defaults to data/hymnal.json")
+    p.add_argument("--no-ask", action="store_true",
+                   help="don't ask about doubtful OCR lines; list them in _pendientes with a crop")
+    p.add_argument("--crops", help="folder for the crops of doubtful lines (default: <image>-dudas/)")
     p.add_argument("--library", help="legacy song-library.json (the reference/song-library/ folder is always read)")
 
 
+def describe(items):
+    return ", ".join(f"Himno {i['himno']}" if i["op"] == "hymn" else
+                     f"canción {i['key']}" if i["op"] == "song" else
+                     f"{i['book']} {i['range']}" for i in items)
+
+
+def make_asker(image, crop_dir):
+    """Ask in the terminal about each doubtful OCR line, opening its crop."""
+    seen = {}
+
+    def ask(rec, line, found):
+        if id(rec) not in seen:
+            crop_dir.mkdir(parents=True, exist_ok=True)
+            seen[id(rec)] = flyer.crop_line(image, rec["box"], crop_dir / f"{len(seen) + 1:02}.png")
+            if sys.platform == "darwin":
+                subprocess.run(["open", seen[id(rec)]])
+            if not rec["text"]:
+                print("\n? Aquí hay texto que no pude leer", file=sys.stderr)
+            else:
+                why = (f"confianza {rec['conf']}%" if rec["conf"] < flyer.MIN_CONF else "no coincide con nada")
+                print(f"\n? No entendí bien esta línea ({why}): «{line}»", file=sys.stderr)
+            print(f"  recorte: {seen[id(rec)]}", file=sys.stderr)
+        else:
+            print(f"  «{line}» sigue sin coincidir con un himno, canción o pasaje", file=sys.stderr)
+        if found:
+            print(f"  coincide con: {describe(found)}", file=sys.stderr)
+        print("  Escribe el texto correcto · Enter = dejarlo así · - = no es parte del culto", file=sys.stderr)
+        try:
+            answer = input("  > ")
+        except EOFError:  # Ctrl-D: stop asking, leave the line in _pendientes
+            print(file=sys.stderr)
+            return ""
+        return None if answer.strip() == "-" else answer
+
+    return ask
+
+
 def spec_from_args(args, output):
-    text = Path(args.source).read_text(encoding="utf-8") if args.text else flyer.ocr(args.source)
-    spec = flyer.make_spec(text, output, args.sermon_title, args.sermon_lead,
-                           args.passage, args.hymnal, args.library)
+    if args.text:
+        lines, ask = Path(args.source).read_text(encoding="utf-8"), None
+    else:
+        lines = flyer.ocr_lines(args.source)
+        crop_dir = Path(args.crops or f"{Path(args.source).stem}-dudas")
+        interactive = sys.stdin.isatty() and not args.no_ask
+        ask = make_asker(args.source, crop_dir) if interactive else None
+    spec = flyer.make_spec(lines, output, args.sermon_title, args.sermon_lead,
+                           args.passage, args.hymnal, args.library, ask)
+    for n, p in enumerate(q for q in spec.get("_pendientes", []) if isinstance(q, dict)):
+        crop_dir.mkdir(parents=True, exist_ok=True)
+        p["crop"] = flyer.crop_line(args.source, p["box"], crop_dir / f"pendiente-{n + 1:02}.png")
     for w in flyer.warnings(spec):
         print(f"! {w}", file=sys.stderr)
     return spec

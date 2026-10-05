@@ -417,6 +417,7 @@ name = "worshipdeck"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "pillow" },
     { name = "pypdf" },
     { name = "python-pptx" },
     { name = "reportlab" },
@@ -424,6 +425,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "pillow", specifier = ">=12.3.0" },
     { name = "pypdf", specifier = ">=6.0.0" },
     { name = "python-pptx", specifier = ">=1.0.2" },
     { name = "reportlab", specifier = ">=4.0" },

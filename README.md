@@ -38,6 +38,23 @@ Sin `-o`, la deck se llama como el domingo siguiente (`OCTUBRE 11.pptx`).
 | `Salmos 42:1-2 & 63:1-3` | slides de pasaje (el texto RV1960 se pega a mano) |
 | cualquier otra cosa | `_pendientes` en el spec y aviso en stderr |
 
+### Cuando el OCR no entiende
+
+Si una línea sale con confianza menor a 60 %, no coincide con nada, o hay texto que tesseract
+no devolvió (una zona con tinta que ningún bloque de OCR cubre), `parse`/`make` abre el recorte de
+esa zona y pregunta en la terminal:
+
+```
+? Aquí hay texto que no pude leer
+  recorte: flyer-dudas/02.png
+  Escribe el texto correcto · Enter = dejarlo así · - = no es parte del culto
+  > Himno 83
+```
+
+El texto escrito se vuelve a evaluar al momento, y si sigue sin coincidir pregunta otra vez.
+Con `--no-ask`, o si la entrada no es una terminal, no pregunta: las líneas quedan en
+`_pendientes` del spec con su `conf`, su `box` y la ruta del recorte (`--crops` cambia la carpeta).
+
 El flyer casi nunca trae la prédica: pásala con `--sermon-title` / `--passage`.
 Una canción que cae en `_pendientes` falta en la biblioteca; agrégala con `worshipdeck song add`
 o mina una deck vieja con `worshipdeck song import-deck --deck VIEJA.pptx`.

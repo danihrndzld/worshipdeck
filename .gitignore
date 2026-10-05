@@ -1,6 +1,7 @@
-build/
-.venv/
 __pycache__/
-*.pyc
 .DS_Store
+.venv/
+*-dudas/
+*.pyc
 *.spec.json
+build/
