@@ -1,46 +1,100 @@
-# Testing Trophy as a pipeline: static -> unit + integration -> e2e.
-# Each stage gates the next; the cheapest signal runs first.
+# CI: the universal task list as one job per signal (build, lint, unit, integration,
+# e2e, coverage), all starting in parallel; `gate` is the single fan-in check to require.
+# The build is build.yml, the same job the release pipeline runs.
 name: ci
 
 on:
+  pull_request:
   push:
     branches: [main]
-  pull_request:
+  merge_group:
+  schedule:
+    - cron: "17 6 * * 1"   # weekly: catches drift in the OS packages (tesseract, LibreOffice)
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  UV_LOCKED: "1"   # every uv command fails if uv.lock is out of date
+
 jobs:
-  static:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  lint:
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
-      - run: uv sync --locked
+        with: { enable-cache: true }
       - name: Ruff (bug, error and style buckets in pyproject.toml)
         run: uv run ruff check . --output-format github
 
-  test:
-    needs: static
+  unit:
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with: { enable-cache: true }
+      - run: uv run pytest tests/unit --cov=worshipdeck --cov-branch --cov-report= -p no:cacheprovider
+        env: { COVERAGE_FILE: .coverage.unit }
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with: { name: coverage-unit, path: .coverage.unit, include-hidden-files: true }
+
+  integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with: { enable-cache: true }
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-spa
-      - run: uv sync --locked
-      - name: Unit + integration, with branch coverage
-        run: uv run pytest -m "not e2e" --cov=worshipdeck --cov-branch --cov-report=term-missing
+      - run: uv run pytest tests/integration --cov=worshipdeck --cov-branch --cov-report= -p no:cacheprovider
+        env: { COVERAGE_FILE: .coverage.integration }
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with: { name: coverage-integration, path: .coverage.integration, include-hidden-files: true }
 
   e2e:
-    needs: test
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with: { enable-cache: true }
       - run: >-
           sudo apt-get update && sudo apt-get install -y --no-install-recommends
           tesseract-ocr tesseract-ocr-spa libreoffice-impress
-      - run: uv sync --locked
-      - name: CLI end to end, including the LibreOffice render
-        run: uv run pytest -m e2e
+      - name: CLI end to end, including the LibreOffice render (marked slow)
+        run: uv run pytest tests/e2e -m "" -p no:cacheprovider
+
+  coverage:
+    needs: [unit, integration]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with: { enable-cache: true }
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with: { pattern: coverage-*, merge-multiple: true }
+      - name: Branch coverage of unit + integration, gate at 80%
+        run: |
+          uv run coverage combine .coverage.unit .coverage.integration
+          uv run coverage report --fail-under=80 --show-missing
+
+  gate:
+    if: always()
+    needs: [build, lint, unit, integration, e2e, coverage]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Every signal passed
+        run: |
+          echo '${{ toJSON(needs) }}' | python3 -c "import json,sys; n=json.load(sys.stdin); bad={k:v['result'] for k,v in n.items() if v['result']!='success'}; print(bad or 'all green'); sys.exit(1 if bad else 0)"
