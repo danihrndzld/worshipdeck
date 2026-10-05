@@ -79,3 +79,11 @@ def test_cl_13_every_hymn_line_reaches_a_slide_once_per_sung_stanza(sept6_deck):
 def test_cl_14_the_deck_keeps_the_templates_slide_size(sept6_deck):
     built, template = Presentation(str(sept6_deck)), Presentation(str(REAL_TEMPLATE))
     assert (built.slide_width, built.slide_height) == (template.slide_width, template.slide_height)
+
+
+# Vercel cuts function responses at 4.5 MB: a Sunday deck must stay under it (tools/compress_template.py).
+VERCEL_LIMIT = 4_500_000
+
+
+def test_bva_36_a_full_deck_fits_vercels_response_limit(sept6_deck):
+    assert sept6_deck.stat().st_size < VERCEL_LIMIT, f"{sept6_deck.stat().st_size} bytes"
