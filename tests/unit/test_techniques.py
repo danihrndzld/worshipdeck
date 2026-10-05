@@ -113,17 +113,32 @@ def test_ask_loop_transitions(answers, questions, items, pending):
 
 
 # --------------------------------------------------- invalid transitions (all transitions)
-# Resolved, Dropped and Kept are terminal: no event may reach them. One invalid per case:
-# the person would still answer, but the loop must not ask again.
+# Resolved, Dropped and Kept are terminal: none of the 4 events may reach them. One invalid
+# transition per case (3 states x 4 events = 12): the person would still answer, the loop must not ask.
+ENTER = {"resuelta": "Hosanna", "descartada": None, "pendiente": ""}
+EVENT = {"coincide": "Hosanna", "no-coincide": "Feliz domingo", "descartar": None, "enter": ""}
+INVALID = [(state, event) for state in ENTER for event in EVENT]
 
-@pytest.mark.parametrize("answers", [["Hosanna", "otra"], [None, "otra"], ["", "otra"]],
-                         ids=["ST-I1-resuelta-no-acepta-eventos", "ST-I2-descartada-no-acepta-eventos",
-                              "ST-I3-pendiente-no-acepta-eventos"])
-def test_terminal_states_accept_no_more_answers(answers):
+
+@pytest.mark.parametrize("state, event", INVALID,
+                         ids=[
+    "ST-I1-resuelta-coincide",
+    "ST-I2-resuelta-no-coincide",
+    "ST-I3-resuelta-descartar",
+    "ST-I4-resuelta-enter",
+    "ST-I5-descartada-coincide",
+    "ST-I6-descartada-no-coincide",
+    "ST-I7-descartada-descartar",
+    "ST-I8-descartada-enter",
+    "ST-I9-pendiente-coincide",
+    "ST-I10-pendiente-no-coincide",
+    "ST-I11-pendiente-descartar",
+    "ST-I12-pendiente-enter"])
+def test_terminal_states_accept_no_more_answers(state, event):
     library = {"hosanna": {"title_white": "Hosanna", "sections": []}}
-    script = list(answers)
+    script = [ENTER[state], EVENT[event]]
     F.parse_flyer_text([{"text": "", "conf": 0, "box": (0, 0, 1, 1)}], {}, library, lambda *a: script.pop(0))
-    assert script == ["otra"]
+    assert script == [EVENT[event]]
 
 
 # ------------------------------------------------------------- branches left uncovered
