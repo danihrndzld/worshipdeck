@@ -1,15 +1,19 @@
 # Estrategia de pruebas
 
+Cada caso lleva el ID de la técnica que lo diseñó en el nombre o en el id del parámetro
+(`EP-22`, `BVA-06`, `DT-03`, `ST-I4`, `EG-20`, `CL-05`, `AC-05`, `BR-08`). El reporte con el análisis de
+riesgo, la derivación de cada técnica y la trazabilidad de los 193 casos se genera en
+`reportes-pruebas/` (HTML + PDF).
+
 La suite sigue el Testing Trophy de Kent C. Dodds: estático en la base, unit, integración y E2E arriba.
-La prioridad al escribirla fue integración, luego E2E, luego unit. Por número de casos, unit e
-integración quedan parejas (56 y 55), pero integración sola cubre 78 % de las ramas contra 39 % de unit:
-es la capa que más confianza da, la copa del trofeo.
+La prioridad al escribirla fue integración, luego E2E, luego unit. Integración es la capa con más casos (116) y sola cubre 84 % de las ramas contra 35 % de unit: es la
+capa que más confianza da, la copa del trofeo.
 
 | Capa | Dónde | Casos | Tiempo | Cobertura de ramas sola |
 |---|---|---|---|---|
 | Estático | Ruff, `[tool.ruff]` en `pyproject.toml` | 0 hallazgos | <1 s | no aplica |
-| Unit | `tests/unit/` | 56 | 0,2 s | 39 % |
-| Integración | `tests/integration/` | 55 | 2,5 s | 78 % |
+| Unit | `tests/unit/` | 71 | 0,4 s | 35 % |
+| Integración | `tests/integration/` | 116 | 6 s | 84 % |
 | E2E | `tests/e2e/` | 6 | 3 s + 70 s del render | subproceso, no se mide |
 
 ```bash
@@ -52,7 +56,8 @@ y 3 `subprocess.run` sin `check` explícito.
 
 ## Mutantes
 
-Cobertura dice qué corrió, no qué se verificó. Planté 6 mutantes a mano y la suite mató los 6:
+Cobertura dice qué corrió, no qué se verificó. Planté mutantes a mano y la suite los mató todos (el reporte
+lista 8, con 2 sobre la frontera de confianza de la API):
 
 | Mutante | Lo mata |
 |---|---|
