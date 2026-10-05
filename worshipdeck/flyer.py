@@ -268,7 +268,7 @@ def make_spec(lines, output=None, sermon_title=None, sermon_lead="El tema de hoy
     if passage:
         refs = scripture_items(passage)
         if not refs:
-            raise SystemExit(f"Can't read the passage {passage!r}; use 'Libro 1:2-3'")
+            raise SystemExit(f"No entiendo el pasaje {passage!r}: escríbelo como 'Libro 1:2-3'")
         spec["items"].extend(refs)
     if pendientes:
         spec["_pendientes"] = pendientes

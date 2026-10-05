@@ -144,7 +144,7 @@ def test_terminal_states_accept_no_more_answers(state, event):
 # ------------------------------------------------------------- branches left uncovered
 
 def test_br_01_unreadable_passage_is_reported():
-    with pytest.raises(SystemExit, match="Can't read the passage"):
+    with pytest.raises(SystemExit, match="No entiendo el pasaje"):
         F.make_spec("", "X.pptx", passage="el salmo del pastor")
 
 

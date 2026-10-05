@@ -164,7 +164,7 @@ def test_br_03_parse_without_input(client):
 
 def test_br_04_unreadable_passage_is_a_400(client):
     r = client.post("/api/parse", json={"text": "Himno 64", "passage": "el salmo del pastor"})
-    assert r.status_code == 400 and "passage" in r.get_json()["error"]
+    assert r.status_code == 400 and "No entiendo el pasaje" in r.get_json()["error"]
 
 
 def test_br_05_empty_search(client):
@@ -172,7 +172,8 @@ def test_br_05_empty_search(client):
 
 
 def test_br_06_song_lyrics_and_unknown_song(client):
-    assert client.get("/api/song/hosanna").get_json()["title"] == "Hosanna"
+    song = client.get("/api/song/al-estar-ante-ti").get_json()
+    assert (song["title_white"], song["title_cream"]) == ("Al estar", "Ante ti")  # two-tone title kept for edits
     assert client.get("/api/song/no-existe").status_code == 404
 
 
@@ -188,8 +189,13 @@ def test_br_08_library_add_conflict_and_delete(client, tmp_path, monkeypatch):
     assert client.post("/api/library", json={"title_white": "", "sections": []}).status_code == 400
     key = client.post("/api/library", json=song).get_json()["key"]
     assert client.post("/api/library", json=song).status_code == 409
-    assert client.delete(f"/api/library/{key}").get_json() == {"deleted": key}
-    assert client.delete(f"/api/library/{key}").status_code == 404
+    renamed = {**song, "title_cream": "renombrada", "replace": key}
+    new_key = client.post("/api/library", json=renamed).get_json()["key"]
+    assert new_key != key and client.get(f"/api/song/{new_key}").get_json()["title_cream"] == "renombrada"
+    assert client.get(f"/api/song/{key}").status_code == 404  # replaced, not duplicated
+    assert client.post("/api/library", json={**song, "replace": "no-existe"}).status_code == 404
+    assert client.delete(f"/api/library/{new_key}").get_json() == {"deleted": new_key}
+    assert client.delete(f"/api/library/{new_key}").status_code == 404
 
 
 def test_br_09_library_is_read_only_on_vercel(client, monkeypatch):
@@ -210,3 +216,10 @@ def test_br_10_letras_on_a_deck_without_songs(client):
 
 def test_br_11_the_app_shell_is_served(client):
     assert client.get("/").status_code in (200, 404)  # 404 until web/ exists
+
+
+def test_br_12_text_lines_without_boxes(client):
+    r = client.post("/api/parse", json={"lines": [{"id": 0, "text": "Himno 64", "conf": 100},
+                                                  {"id": 1, "text": "IGLESIA AMIGOS", "conf": 100}]})
+    assert r.status_code == 200 and r.get_json()["spec"]["items"][1] == {"op": "hymn", "himno": 64}
+    assert [p["text"] for p in r.get_json()["pendientes"]] == ["IGLESIA AMIGOS"]

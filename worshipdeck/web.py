@@ -142,7 +142,8 @@ def parse():
         if body.get("text") is not None:
             lines = body["text"]
         elif body.get("lines") is not None:
-            lines = [{**line, "box": tuple(line["box"])} for line in body["lines"]]
+            lines = [{**line, "box": tuple(line["box"])} if line.get("box") else
+                     {k: v for k, v in line.items() if k != "box"} for line in body["lines"]]
             if body.get("fresh") and img:
                 lines = F.with_unread_bands(img, lines)
         elif img:
@@ -205,7 +206,8 @@ def hymn(number):
 def song(key):
     entry = library().get(key) or abort(404, f"no hay canción {key!r}")
     sections = [{"kind": k, "lines": lines} for k, lines, _ in B.library_sections(entry)]
-    return jsonify({"key": key, "title": song_title(entry), "sections": sections})
+    return jsonify({"key": key, "title": song_title(entry), "sections": sections,
+                    **{k: entry.get(k) for k in ("title_white", "title_cream", "artist", "source", "verbatim")}})
 
 
 @app.get("/api/library")
@@ -221,11 +223,17 @@ def library_add():
     if os.environ.get("VERCEL"):
         abort(501, "en el deploy la biblioteca es de solo lectura: la canción va dentro del culto de esta semana")
     entry = request.get_json(force=True)
+    replace = Path(entry.pop("replace", "") or "").name  # editing: the key being replaced
     if not song_title(entry) or not entry.get("sections"):
         abort(400, "falta el título o la letra")
-    dest = B.save_song(entry, overwrite=bool(entry.get("overwrite")))
-    if dest is None:
+    if replace and replace not in library():
+        abort(404, f"no hay canción {replace!r} para reemplazar")
+    entry["key"] = B.slugify(song_title(entry))
+    if entry["key"] in library() and entry["key"] != replace:
         abort(409, "ya existe una canción con ese título")
+    dest = B.save_song(entry, overwrite=bool(replace))
+    if replace and replace != dest.stem:
+        (B.library_dir() / f"{replace}.json").unlink()
     return jsonify({"key": dest.stem})
 
 
