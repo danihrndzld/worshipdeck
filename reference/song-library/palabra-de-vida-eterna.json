@@ -1,0 +1,98 @@
+{
+  "title_white": "Palabra de Vida Eterna",
+  "title_cream": "",
+  "title": "Palabra de Vida Eterna",
+  "source": "deck:AGOSTO 30.pptx",
+  "sections": [
+    {
+      "type": "verse",
+      "lines": [
+        "Pan de vida es Cristo",
+        "La luz del mundo es Jesús",
+        "Cordero de Dios inmolado en la cruz",
+        "Mi Salvador y Rey"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "El gran maestro es Cristo",
+        "El buen Pastor, es Jesús",
+        "El hijo de Dios y el gran Yo Soy",
+        "El agua que sacia mi sed."
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "Solo Cristo tiene, palabras de vida eterna",
+        "Para el afligido, para el quebrantado"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "Para todo aquel que quiera ser libre",
+        "Del pecado"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "Pan de vida es Cristo",
+        "La luz del mundo es Jesús",
+        "Cordero de Dios inmolado en la cruz",
+        "Mi Salvador y Rey"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "El gran maestro es Cristo",
+        "El buen Pastor, es Jesús",
+        "El hijo de Dios y el gran Yo Soy",
+        "El agua que sacia mi sed."
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "Solo Cristo tiene, palabras de vida eterna",
+        "Para el afligido, para el quebrantado"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "Para todo aquel que quiera ser libre",
+        "Del pecado"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "Solo Cristo tiene, palabras de vida eterna",
+        "Para el afligido, para el quebrantado"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "Para todo aquel que quiera ser libre",
+        "Del pecado"
+      ],
+      "chunk_size": "whole"
+    }
+  ],
+  "key": "palabra-de-vida-eterna",
+  "date_added": "2026-10-05"
+}

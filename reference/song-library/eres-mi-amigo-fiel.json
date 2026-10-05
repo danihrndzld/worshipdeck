@@ -1,0 +1,91 @@
+{
+  "title_white": "Eres mi",
+  "title_cream": "Amigo Fiel",
+  "title": "Eres mi Amigo Fiel",
+  "source": "deck:SEPTIEMBRE 6.pptx",
+  "sections": [
+    {
+      "type": "verse",
+      "lines": [
+        "¿Quién soy yo para que en mí Tú pienses",
+        "Y que escuches, mi clamor?"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "Y es verdad lo que Tú hoy me dices",
+        "Que me amas, me asombras"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "¿Quién soy yo para que en mí Tú pienses",
+        "Y que escuches, mi clamor?"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "Y es verdad lo que Tú hoy me dices",
+        "Que me amas, me asombras"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "//Eres mi amigo fiel, eres mi amigo fiel",
+        "Eres mi amigo fiel, tu amigo soy//",
+        "¿Quién soy yo?"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "¿Quién soy yo para que en mí Tú pienses",
+        "Y que escuches, mi clamor?"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "Y es verdad lo que Tú hoy me dices",
+        "Que me amas, me asombras"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "//Eres mi amigo fiel, eres mi amigo fiel",
+        "Eres mi amigo fiel, tu amigo soy//"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "///Majestuoso, Poderoso",
+        "Tu amigo soy///"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "//Eres mi amigo fiel, eres mi amigo fiel",
+        "Eres mi amigo fiel, tu amigo soy//"
+      ],
+      "chunk_size": "whole"
+    }
+  ],
+  "key": "eres-mi-amigo-fiel",
+  "date_added": "2026-10-05"
+}

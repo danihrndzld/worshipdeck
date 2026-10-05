@@ -1,0 +1,62 @@
+{
+  "title_white": "El Señor es",
+  "title_cream": "Mi Pastor",
+  "source": "deck:SEPTIEMBRE 6.pptx",
+  "sections": [
+    {
+      "type": "verse",
+      "lines": [
+        "El Señor es mi pastor",
+        "Nada me faltará",
+        "El Señor es mi pastor",
+        "En pastos delicados",
+        "Él me hará descansar"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "Junto a aguas de reposo",
+        "Me pastoreará",
+        "Confortará mi alma",
+        "Me guiará por sendas de justicia",
+        "Por amor de su nombre"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "//El Señor es mi pastor",
+        "Nada me faltará//",
+        "El Señor es mi pastor",
+        "En pastos delicados",
+        "Él me hará descansar"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "Junto a aguas de reposo",
+        "Me pastoreará",
+        "Confortará mi alma",
+        "Me guiará por sendas de justicia",
+        "Por amor de su nombre"
+      ],
+      "chunk_size": "whole"
+    },
+    {
+      "type": "verse",
+      "lines": [
+        "El Señor es mi pastor",
+        ":::..Nada me faltará..:::"
+      ],
+      "chunk_size": "whole"
+    }
+  ],
+  "title": "El Señor es Mi Pastor",
+  "key": "el-senor-es-mi-pastor",
+  "date_added": "2026-10-05"
+}

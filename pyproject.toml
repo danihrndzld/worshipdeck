@@ -1,0 +1,17 @@
+[project]
+name = "worshipdeck"
+version = "0.1.0"
+description = "Sunday-service PPTX from a flyer image: OCR the song list, pull hymns from the himnario, clone the church's slide style."
+requires-python = ">=3.11"
+dependencies = [
+    "python-pptx>=1.0.2",
+    "pypdf>=6.0.0",
+    "reportlab>=4.0",
+]
+
+[project.scripts]
+worshipdeck = "worshipdeck.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
